@@ -11,7 +11,7 @@
 
 ## 💽Testing and implementation example repo => [(click)](https://github.com/CarlosAlegreUr/CallOrderControl-SmartContract-Testing) 💽
 
-## 💽NPM repo => [(click)](https://www.npmjs.com/package/input-control-contract) 💽
+## 💽NPM repo => [(click)](https://www.npmjs.com/package/call-order-control-contract) 💽
 
 <hr/>
 
