@@ -9,7 +9,7 @@ error CallOrderControl__NotAllowedCall();
  * @author Carlos Alegre Urquizú (GitHub --> https://github.com/CarlosAlegreUr)
  *
  * @notice CallOrderControl can be used to control in which order the functions from your smart contract can specific
- * addresses call them.
+ * addresses call them in a dynamic way.
  *
  * @dev Check an usecase contract at UseCaseContract.sol on the github repo:
  * (add the link!)
@@ -92,7 +92,9 @@ contract CallOrderControl {
             if (
                 s_callerToFuncUnordered[_callerAddress].funcToCallsLeft[
                     _funcSelec
-                ] == 0
+                ] ==
+                0 ||
+                s_callerToFuncUnordered[_callerAddress].callsToUse == 0
             ) {
                 revert CallOrderControl__NotAllowedCall();
             }
@@ -121,25 +123,34 @@ contract CallOrderControl {
     /* Getters */
 
     /**
-     * @return Allowed funcs to be called by `_address`. If `_isSequence` == true
-     * the indexes of the `funcs` array show in which order `_address` must call the functions.
+     * @return Returns wheter `_callerAddress` must use it's allowed calls
+     * in a sequence or in an unordered manner.
+     */
+    function getIsSequence(address _callerAddress) public view returns (bool) {
+        return s_callerToIsSequence[_callerAddress];
+    }
+
+    /**
+     * @return Returns allowed funcs to be called by `_callerAddress`.
      *
-     * If `_isSequence` == false then functions represented in the array can be called in any
-     * order.
-     *
-     * If any of the values is the 0 value it means the value has been used. Or in a very unlikely
+     * @notice If any of the values is the 0 value it means the value has been used. Or in a very unlikely
      * scenario maybe the function selector is equal to the 0 value, if this is the case the 'off-chain'
      * user should have into account that one of the 0 values in the array won't necessarily mean the
      * function call has been done.
+     *
+     * Thats why I recommend checking before calling this contract if any of the functions selectors happen
+     *  to be the 0 value, in order to later know precisely which function calls have already been used.
+     *
+     * The contract logic will work no matter what the selector of your function is though, this reommenation
+     * is just for making sure you always can check precisely what calls someone has or hasn't used in the contract.
      */
     function getAllowedFuncCalls(
-        address _address,
-        bool _isSequence
+        address _callerAddress
     ) public view returns (bytes4[] memory) {
-        if (_isSequence) {
-            return s_callerToFuncSequence[_address].funcs;
+        if (s_callerToIsSequence[_callerAddress]) {
+            return s_callerToFuncSequence[_callerAddress].funcs;
         } else {
-            return s_callerToFuncUnordered[_address].funcs;
+            return s_callerToFuncUnordered[_callerAddress].funcs;
         }
     }
 
@@ -163,6 +174,8 @@ contract CallOrderControl {
 
     /**
      * @dev Allows `_callerAddress` to call functions represented inside `_validFuncCalls`.
+     * If `_callerAddress` had still some valid calls and this function is called again to
+     * create new ones, new permissions will be overwritten.
      *
      * @param _validFuncCalls Each element is a function selector:
      *
@@ -188,14 +201,24 @@ contract CallOrderControl {
         s_callerToIsSequence[_callerAddress] = _isSequence;
 
         if (_isSequence) {
+            // Saving values in a callSequence structure
             s_callerToFuncSequence[_callerAddress].callsToUse = _validFuncCalls
                 .length;
             s_callerToFuncSequence[_callerAddress].currentCall = 0;
             s_callerToFuncSequence[_callerAddress].funcs = _validFuncCalls;
         } else {
+            // Saving values in an callUnordered structure
             s_callerToFuncUnordered[_callerAddress].callsToUse = _validFuncCalls
                 .length;
             s_callerToFuncUnordered[_callerAddress].funcs = _validFuncCalls;
+
+            // Resets old mapping values
+            for (uint256 i = 0; i < _validFuncCalls.length; i++) {
+                s_callerToFuncUnordered[_callerAddress].funcToCallsLeft[
+                    _validFuncCalls[i]
+                ] = 0;
+            }
+
             for (uint256 i = 0; i < _validFuncCalls.length; i++) {
                 s_callerToFuncUnordered[_callerAddress].funcToPosition[
                     _validFuncCalls[i]

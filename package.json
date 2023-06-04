@@ -1,6 +1,6 @@
 {
   "name": "call-order-control-contract",
-  "version": "1.0.1",
+  "version": "2.0.0",
   "description": "Ensures your functions are only called by an address in a previously allowed order or a previously allowed number of times.",
   "main": "index.js",
   "repository": "https://github.com/CarlosAlegreUr/CallOrderControl-SmartContract-DesignPattern",

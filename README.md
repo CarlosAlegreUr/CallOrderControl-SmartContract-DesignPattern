@@ -40,8 +40,8 @@ times taking into account the order.
 1. Make your contract inherit CallOrderControl and add the isAllowedCall()
    modifier in the functions you desire to control. Make sure to pass the correct arguments:
 
-    1.1 -> Function selector of the function where it's being applied: 
-        bytes4(keccak256(bytes("funcSignatureAsString")))
+   1.1 -> Function selector of the function where it's being applied:
+   bytes4(keccak256(bytes("funcSignatureAsString")))
 
    1.2 -> msg.sender => to know who is calling.
 
@@ -52,10 +52,21 @@ Check a simple implemented example at [UseCaseContract.sol](https://github.com/C
 
 <hr/>
 
+## 📰 Last Changes 📰
+
+- Fixed bug, funcToCallsLeft mapping now is overwritten correctly. In previous version it could overflow and/or lead to unexpected behaviours.
+
+- Added getIsSequence() function.
+- Deleted argument \_isSequence ins getAllowedFuncCalls().
+- New tests in tests' repository.
+
 ## 🎉 FUTURE IMPROVEMENTS 🎉
 
 - Improve and review (static analysis, audit...) code's tests.
+
 - Test in testnet.
+- Create modifier locker. Make it more flexible and be able to activate or deactivate CallControl in your functions.
+- Check if worth it to create better option: adding more allowed calls to client who hasn't used all of them. Now it overwrites.
 - Check gas implications of changing 4 bytes function selector to 32 bytes hashed function signatures.
 
 <hr/>
