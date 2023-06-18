@@ -21,6 +21,22 @@ If further elaboration or development please mention me in your work.
 
 <hr/>
 
+## 🙀 A PROBLEM THAT SOLVES 🙀
+
+Imagine you have a blockchain-based game where players can possess collectible items in the form of NFTs or any ERC token standard.
+
+Now, imagine implementing a random loot box opening system using contracts like VRF from ChainLink. For each loot box, someone needs to call the VRF functions in your contract to generate a random result and then check the emitted events to retrieve the values.
+
+However, if you allow anyone to call these functions in any order and any number of times, there is a risk of an attacker spending money to disrupt your system. They could call the function multiple times, making it more expensive to filter the contract events. Alternatively, if you restrict the VRF calls only to your team's addresses, the entire cost of opening loot boxes will fall on your business.
+
+To reduce the cost of implementing a loot box system in your blockchain-integrated game, you can shift the burden of calling the VRF functions to the client in a controlled manner using the CallOrderControl contract. This way, your business only needs to call one function to grant permissions to the clients, which should be cheaper (although I haven't checked it yet 😅). Even if it results on not being much cheaper you still get the benefit of improved security
+and control.
+
+With this approach, you will have the ability to determine who can call which VRF function, how many times, and even in what order.
+
+Combining this with the  [InputControl](https://www.npmjs.com/package/input-control-contract) package, you can implement a more affordable and secure method for creating a game with NFT improvements. Both the client and business can ensure that no one can modify NFT values without permission.
+
+
 ## 🤖 General usecase explanation 🤖
 
 CallOrderControl can be used to control that functions are only called by an address in a previously allowed order
@@ -66,6 +82,7 @@ Check a simple implemented example at [UseCaseContract.sol](https://github.com/C
 
 - Test in testnet.
 - Create modifier locker. Make it more flexible and be able to activate or deactivate CallControl in your functions.
+- Check gas implmications in the VRF suposed usecase.
 - Check if worth it to create better option: adding more allowed calls to client who hasn't used all of them. Now it overwrites.
 - Check gas implications of changing 4 bytes function selector to 32 bytes hashed function signatures.
 
